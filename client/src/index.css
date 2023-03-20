@@ -11,52 +11,14 @@ html {
 	font-size: 16px;
 }
 
-div#app {
-	min-height: 100vh;
-	overflow: hidden;
+.message {
+    background-color: #0d0d0d;
+    color: #fff;
+    padding: .5rem 2rem;
+    margin-bottom: .5rem;
 }
 
-div#login {
-	height: 100vh;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-div#login > div {
-/*	background-color: blue;*/
-	padding: 1rem;
-}
-
-div#login > div > * + * {
-	margin-top: 1rem;
-}
-
-div#login > div input,button {
-	display: block;
-	padding: 0.5rem 1rem;
-	border: none;
-	border-bottom: 3px solid #0d0d0d;
-	border-bottom-left-radius: 3px;
-	border-bottom-right-radius: 3px;
-}
-
-div#login > div input {
-	--bd-ot: 0.05;
-	outline: none;
-	border-left: 1px solid rgba(0,0,0,var(--bd-ot));
-	border-right: 1px solid rgba(0,0,0,var(--bd-ot));
-	border-top: 1px solid rgba(0,0,0,var(--bd-ot));
-}
-
-div#login > div input:focus {
-	--bd-ot: 0.1;
-}
-
-div#login > div > button {
-	cursor: pointer;
-	border: none;
-	border-radius: 3px;
-	background-color: royalblue;
-	color: #fff;
+.message[data-l=false] {
+    background-color: #eee;
+    color: #000
 }

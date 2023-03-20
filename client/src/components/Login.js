@@ -1,53 +1,46 @@
-import React from "react"
-// import { useState, useEffect } from "react"
-// import socket from "socket.io-client"
+import React from "react";
+import {GlobalContext} from "../GlobalContext";
+import {useNavigate} from "react-router-dom";
 
-const Login = ({name, pin, handleSubmit}) => {
-	// const [name, setName] = useState("");
-	// const [pin, setPin] = useState("");
+const Login = () => {
+    const navigate = useNavigate();
+    const [name, setName] = React.useState("")
+    const [pin, setPin] = React.useState("");
 
-	// const handleSocketConnection = (responseStatus, token) => {
-	// 	if (responseStatus == 200) {
-	// 		const io = socket("/")
+    const { connected, setValue } = React.useContext(GlobalContext);
 
-	// 		io.on("connect", () => {
-	// 			console.log("Yahoo!! Connected")
-	// 		})
-	// 	} else {
-	// 		console.log("Not Ready")
-	// 	}
-	// }
+    React.useEffect(() => {
+        if (connected) {
+            navigate("/chat")
+        }
+    }, [connected, navigate])
 
-	// const handleSubmit = async (e) => {
-	// 	const response = await fetch("/login", {
-	// 		method: "POST",
-	// 		headers: { "Content-Type": "application/json" },
-	// 		body: JSON.stringify({name,pin})
-	// 	})
+    async function handleclick() {
+        if (!name || !pin) return
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, pin })
+        });
+        const responseData = await response.json()
+        if (response.status === 200) {
+            setValue({ connected: true, token: responseData.token });
+        } else {
+            setValue({ connected: false });
+        }
+    }
 
-	// 	// setResponseStatus(response.status)
-	// 	// setToken(response.headers.get("token"))
-	// 	handleSocketConnection(response.status, response.headers.get("token"))
-	// }
-
-	return (
-		<div id="login">
-			<div>
-				<input 
-					placeholder="Enter Name"
-					value={name[0]}
-					onChange={(e) => name[1](e.target.value)}
-				/>
-				<input
-					type="password"
-					placeholder="Enter Pin"
-					value={pin[0]}
-					onChange={(e) => pin[1](e.target.value)}
-				/>
-				<button type="submit" onClick={handleSubmit}>Enter Chat</button>
-			</div>
-		</div>
-	)
+    return (
+        <div id="login">
+            <h1>Login Page</h1>
+            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+            <input type="password" placeholder="Pin" value={pin} onChange={(e) => setPin(e.target.value)} />
+            <button type="button" onClick={handleclick}>Login</button>
+            {connected ? <h3>Connected</h3> : <h3>Not Connected</h3>}
+        </div>
+    )
 }
 
 export default Login

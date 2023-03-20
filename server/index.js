@@ -2,7 +2,8 @@ const express = require("express");
 const socket = require("socket.io");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
+const uuid = require("uuid");
+// const cors = require("cors");
 const http = require("http");
 const control = require("./control.js");
 
@@ -10,30 +11,37 @@ const app = express();
 const httpServer = http.createServer(app);
 const PORT = process.env.PORT || 8000;
 
-const io = socket(httpServer)
+const unique_ids = []
 
-io.on("connection", (client_socket) => {
-	client_socket.on("login", (data) => {
-		const {name, pin} = data
-		const token = jwt.sign({name}, "azwad")
+const io = new socket.Server(httpServer, {
+    cors: {
+        methods: ["POST"]
+    }
+})
 
-		if (control.checkPin(pin)) {
-			io.emit("login_success", token);
-		} else {
-			io.emit("login_failed");
-		}
-	})
-    client_socket.on("hello", (data)=> {
-        console.log("Hello")
+io.on("connection", (socket) => {
+    console.log("A user is connected.")
+
+    socket.on("message-send", (data) => {
+        socket.emit("message-recieve", {msg: data, l: true})
+        socket.broadcast.emit("message-recieve", {msg: data, l: false})
+    })
+
+    socket.on("disconnect", () => {
+        console.log("User Disconnected")
     })
 })
 
-app.use(cors())
-
-app.get("/", (req,res) => {
-	console.log("Hello World");
-	res.send("Hello World");
-});
+app.post("/login", bodyParser.json(), (req,res) => {
+    if (control.checkPin(req.body.pin)) {
+        const v4id = uuid.v4()
+        const v5id = uuid.v5(`${req.body.name}{${Math.random() * 2 / 100 % 500}}{${Math.random() * Math.random()}}`, v4id)
+        const token = jwt.sign({name: req.body.name, id: v5id}, "ratchett-azwad-jahan-123")
+        res.status(200).send({token})
+    } else {
+        res.sendStatus(401)
+    }
+})
 
 httpServer.listen(PORT, () => {
 	console.log(`Listening on the port ${PORT}`);
